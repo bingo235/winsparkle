@@ -247,6 +247,7 @@ WIN_SPARKLE_API void __cdecl win_sparkle_check_update_with_ui()
     {
         // Initialize UI thread and show progress indicator.
         UI::ShowCheckingUpdates();
+        
 
         // Then run the actual check in the background.
         UpdateChecker *check = new ManualUpdateChecker();

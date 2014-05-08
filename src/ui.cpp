@@ -177,7 +177,7 @@ protected:
 
 
 WinSparkleDialog::WinSparkleDialog()
-    : wxDialog(NULL, wxID_ANY, _("Software Update"),
+    : wxDialog(NULL, wxID_ANY, _("软件更新"),
                wxDefaultPosition, wxDefaultSize,
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
@@ -351,7 +351,7 @@ UpdateDialog::UpdateDialog()
 
     m_releaseNotesSizer = new wxBoxSizer(wxVERTICAL);
 
-    wxStaticText *notesLabel = new wxStaticText(this, wxID_ANY, _("Release notes:"));
+    wxStaticText *notesLabel = new wxStaticText(this, wxID_ANY, _("发布说明:"));
     SetBoldFont(notesLabel);
     m_releaseNotesSizer->Add(notesLabel, wxSizerFlags().Border(wxTOP, 10));
 
@@ -377,18 +377,18 @@ UpdateDialog::UpdateDialog()
     m_updateButtonsSizer = new wxBoxSizer(wxHORIZONTAL);
     m_updateButtonsSizer->Add
                           (
-                            new wxButton(this, ID_SKIP_VERSION, _("Skip this version")),
+                            new wxButton(this, ID_SKIP_VERSION, _("跳过此版本")),
                             wxSizerFlags().Border(wxRIGHT, 20)
                           );
     m_updateButtonsSizer->AddStretchSpacer(1);
     m_updateButtonsSizer->Add
                           (
-                            new wxButton(this, ID_REMIND_LATER, _("Remind me later")),
+                            new wxButton(this, ID_REMIND_LATER, _("稍后提醒我")),
                             wxSizerFlags().Border(wxRIGHT, 10)
                           );
     m_updateButtonsSizer->Add
                           (
-                            m_installButton = new wxButton(this, ID_INSTALL, _("Install update")),
+                            m_installButton = new wxButton(this, ID_INSTALL, _("下载")),
                             wxSizerFlags()
                           );
     m_buttonSizer->Add(m_updateButtonsSizer, wxSizerFlags(1));
@@ -401,7 +401,7 @@ UpdateDialog::UpdateDialog()
 
     m_runInstallerButtonSizer = new wxBoxSizer(wxHORIZONTAL);
     // TODO: make this "Install and relaunch"
-    m_runInstallerButton = new wxButton(this, ID_RUN_INSTALLER, _("Install update"));
+    m_runInstallerButton = new wxButton(this, ID_RUN_INSTALLER, _("安装"));
     m_runInstallerButtonSizer->AddStretchSpacer(1);
     m_runInstallerButtonSizer->Add(m_runInstallerButton, wxSizerFlags(0).Border(wxLEFT));
     m_buttonSizer->Add(m_runInstallerButtonSizer, wxSizerFlags(1));
@@ -491,22 +491,22 @@ void UpdateDialog::OnRunInstaller(wxCommandEvent&)
     if( !ApplicationController::IsReadyToShutdown() )
     {
         wxMessageDialog dlg(this,
-                            wxString::Format(_("%s cannot be restarted."), Settings::GetAppName()),
-                            _("Software Update"),
+                            wxString::Format(_("%s 无法重新启动。"), Settings::GetAppName()),
+                            _("软件更新"),
                             wxOK | wxOK_DEFAULT | wxICON_EXCLAMATION);
-        dlg.SetExtendedMessage(_("Make sure that you don't have any unsaved documents and try again."));
+        dlg.SetExtendedMessage(_("确保没有任何未保存的文件，再试一次。"));
         dlg.ShowModal();
         return;
     }
 
     wxBusyCursor bcur;
 
-    m_message->SetLabel(_("Launching the installer..."));
+    m_message->SetLabel(_("启动安装程序..."));
     m_runInstallerButton->Disable();
 
     if ( !wxLaunchDefaultApplication(m_updateFile) )
     {
-        wxLogError(_("Failed to launch the installer."));
+        wxLogError(_("无法启动安装程序。"));
         wxLog::FlushActive();
     }
     else
@@ -528,9 +528,9 @@ void UpdateDialog::StateCheckingUpdates()
 {
     LayoutChangesGuard guard(this);
 
-    SetMessage(_("Checking for updates..."));
+    SetMessage(_("检查更新..."));
 
-    m_closeButton->SetLabel(_("Cancel"));
+    m_closeButton->SetLabel(_("取消"));
     EnablePulsing(true);
 
     HIDE(m_heading);
@@ -548,14 +548,14 @@ void UpdateDialog::StateNoUpdateFound()
 {
     LayoutChangesGuard guard(this);
 
-    m_heading->SetLabel(_("You're up to date!"));
+    m_heading->SetLabel(_("已是最新版本"));
 
     wxString msg;
     try
     {
         msg = wxString::Format
               (
-                  _("%s %s is currently the newest version available."),
+                  _("%s %s 已是目前可用的最新版本。"),
                   Settings::GetAppName(),
                   Settings::GetAppVersion()
               );
@@ -563,12 +563,12 @@ void UpdateDialog::StateNoUpdateFound()
     catch ( std::exception& )
     {
         // GetAppVersion() may fail
-        msg = "Error: Updates checking not properly configured.";
+        msg = "错误： 更新配置文件错误。";
     }
 
     SetMessage(msg);
 
-    m_closeButton->SetLabel(_("Close"));
+    m_closeButton->SetLabel(_("关闭"));
     m_closeButton->SetDefault();
     EnablePulsing(false);
 
@@ -587,12 +587,12 @@ void UpdateDialog::StateUpdateError()
 {
     LayoutChangesGuard guard(this);
 
-    m_heading->SetLabel(_("Update Error!"));
+    m_heading->SetLabel(_("更新错误!"));
 
-    wxString msg = _("An error occurred in retrieving update information; are you connected to the internet? Please try again later.");
+    wxString msg = _("获取更新信息错误。请检查联网状态，稍后再试。");
     SetMessage(msg);
 
-    m_closeButton->SetLabel(_("Cancel"));
+    m_closeButton->SetLabel(_("取消"));
     m_closeButton->SetDefault();
     EnablePulsing(false);
 
@@ -630,13 +630,13 @@ void UpdateDialog::StateUpdateAvailable(const Appcast& info)
         }
 
         m_heading->SetLabel(
-            wxString::Format(_("A new version of %s is available!"), appname));
+            wxString::Format(_("%s 已推出新版本！"), appname));
 
         SetMessage
         (
             wxString::Format
             (
-                _("%s %s is now available (you have %s). Would you like to download it now?"),
+                _("已推出 %s %s (正在使用 %s)。现在下载新版本吗？"),
                 appname, ver_new, ver_my
             ),
             showRelnotes ? RELNOTES_WIDTH : MESSAGE_AREA_WIDTH
@@ -667,9 +667,9 @@ void UpdateDialog::StateDownloading()
 {
     LayoutChangesGuard guard(this);
 
-    SetMessage(_("Downloading update..."));
+    SetMessage(_("下载更新..."));
 
-    m_closeButton->SetLabel(_("Cancel"));
+    m_closeButton->SetLabel(_("取消"));
     EnablePulsing(false);
 
     HIDE(m_heading);
@@ -723,7 +723,7 @@ void UpdateDialog::StateUpdateDownloaded(const std::string& updateFile)
 
     LayoutChangesGuard guard(this);
 
-    SetMessage(_("Ready to install."));
+    SetMessage(_("准备安装"));
 
     m_progress->SetRange(1);
     m_progress->SetValue(1);
@@ -841,7 +841,7 @@ AskPermissionDialog::AskPermissionDialog()
 {
     wxStaticText *heading =
             new wxStaticText(this, wxID_ANY,
-                             _("Check for updates automatically?"));
+                             _("自动检测更新？"));
     SetHeadingFont(heading);
     m_mainAreaSizer->Add(heading, wxSizerFlags(0).Expand().Border(wxBOTTOM, 10));
 
@@ -851,7 +851,7 @@ AskPermissionDialog::AskPermissionDialog()
                     this, wxID_ANY,
                     wxString::Format
                     (
-                        _("Should %s automatically check for updates? You can always check for updates manually from the menu."),
+                        _("%s 是否自动检测更新？您可以随时从菜单中手动检查更新。"),
                         Settings::GetAppName()
                     ),
                     wxDefaultPosition, wxSize(MESSAGE_AREA_WIDTH, -1)
@@ -865,12 +865,12 @@ AskPermissionDialog::AskPermissionDialog()
 
     buttonSizer->Add
                  (
-                     new wxButton(this, wxID_OK, _("Check automatically")),
+                     new wxButton(this, wxID_OK, _("自动检查")),
                      wxSizerFlags().Border(wxRIGHT)
                  );
     buttonSizer->Add
                  (
-                     new wxButton(this, wxID_CANCEL, _("Don't check"))
+                     new wxButton(this, wxID_CANCEL, _("不检查"))
                  );
 
     m_mainAreaSizer->Add
